@@ -192,10 +192,10 @@ const GameDashboard = ({ user: initialUser, onLogout }) => {
         description: 'У вас недостаточно ресурсов для покупки',
         variant: 'destructive'
       });
-      }
+    }
   };
 
-    const newResources = { ...resources };
+  const newResources = { ...resources };
     
     // Deduct cost
     Object.entries(item.cost).forEach(([resource, amount]) => {
@@ -213,7 +213,6 @@ const GameDashboard = ({ user: initialUser, onLogout }) => {
       title: 'Покупка совершена!',
       description: `Вы получили: ${Object.entries(item.rewards).map(([k, v]) => `${v} ${k}`).join(', ')}`,
     });
-  };
 
   const handleBuildingClick = (building) => {
     setSelectedBuilding(building);
@@ -314,6 +313,6 @@ const GameDashboard = ({ user: initialUser, onLogout }) => {
       />
     </div>
   );
-
+};
 
 export default GameDashboard;

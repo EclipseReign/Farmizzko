@@ -1,32 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
+let toastId = 0;
+const listeners = new Set();
 const toasts = [];
-let listeners = [];
 
-export function toast({ title, description, variant = 'default' }) {
-  const id = Math.random().toString(36).substr(2, 9);
-  const newToast = { id, title, description, variant };
+const addToast = (toast) => {
+  const id = toastId++;
+  const newToast = { ...toast, id };
   toasts.push(newToast);
-  listeners.forEach(listener => listener([...toasts]));
+  listeners.forEach((listener) => listener([...toasts]));
   
+  // Auto remove after 5 seconds
   setTimeout(() => {
-    const index = toasts.findIndex(t => t.id === id);
-    if (index > -1) {
+    const index = toasts.findIndex((t) => t.id === id);
+    if (index !== -1) {
       toasts.splice(index, 1);
-      listeners.forEach(listener => listener([...toasts]));
+      listeners.forEach((listener) => listener([...toasts]));
     }
-  }, 3000);
-}
+  }, 5000);
+};
 
-export function useToast() {
-  const [toastList, setToastList] = useState([...toasts]);
+const removeToast = (id) => {
+  const index = toasts.findIndex((t) => t.id === id);
+  if (index !== -1) {
+    toasts.splice(index, 1);
+    listeners.forEach((listener) => listener([...toasts]));
+  }
+};
+
+export const useToast = () => {
+  const [localToasts, setLocalToasts] = useState([...toasts]);
   
-  useEffect(() => {
-    listeners.push(setToastList);
-    return () => {
-      listeners = listeners.filter(l => l !== setToastList);
-    };
+  useState(() => {
+    listeners.add(setLocalToasts);
+    return () => listeners.delete(setLocalToasts);
   }, []);
   
-  return { toasts: toastList, toast };
-}
+  const toast = useCallback((toast) => {
+    addToast(toast);
+  }, []);
+  
+  return {
+    toast,
+    toasts: localToasts,
+    removeToast,
+  };
+};
+
+export const toast = addToast;

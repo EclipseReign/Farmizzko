@@ -23,6 +23,9 @@ class User(BaseModel):
     level: int = 1
     experience: int = 0
     resources: Resources = Field(default_factory=Resources)
+    last_energy_update: datetime = Field(default_factory=datetime.utcnow)
+    max_energy: int = 100
+    energy_regen_rate: int = 1  # energy per 5 minutes
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     

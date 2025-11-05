@@ -88,7 +88,192 @@ export const INITIAL_RESOURCES = {
   wood: 200,
   stone: 150,
   food: 100,
+  energy: 100,
   experience: 0
+};
+
+// CROPS DATA - All available crops
+export const CROPS_DATA = {
+  wheat: {
+    id: 'wheat',
+    name: 'Пшеница',
+    description: 'Быстрорастущая культура',
+    cost: { gold: 10 },
+    grow_time: 60,  // seconds
+    wither_time: 300,
+    yield: { food: 20, gold: 5 },
+    experience: 5,
+    level_required: 1,
+    image: '🌾'
+  },
+  carrot: {
+    id: 'carrot',
+    name: 'Морковь',
+    description: 'Быстрорастущая',
+    cost: { gold: 15 },
+    grow_time: 90,
+    wither_time: 300,
+    yield: { food: 25 },
+    experience: 7,
+    level_required: 1,
+    image: '🥕'
+  },
+  sunflower: {
+    id: 'sunflower',
+    name: 'Подсолнух',
+    description: 'Яркие цветы, привлекают бабочек',
+    cost: { gold: 25 },
+    grow_time: 150,
+    wither_time: 600,
+    yield: { food: 15, gold: 10 },
+    experience: 8,
+    level_required: 1,
+    butterflies: true,
+    image: '🌻'
+  },
+  rose: {
+    id: 'rose',
+    name: 'Роза',
+    description: 'Привлекает бабочек',
+    cost: { gold: 30 },
+    grow_time: 180,
+    wither_time: 600,
+    yield: { gold: 15 },
+    experience: 10,
+    level_required: 2,
+    butterflies: true,
+    image: '🌹'
+  },
+  corn: {
+    id: 'corn',
+    name: 'Кукуруза',
+    description: 'Универсальная культура',
+    cost: { gold: 40 },
+    grow_time: 240,
+    wither_time: 600,
+    yield: { food: 35, gold: 15 },
+    experience: 12,
+    level_required: 2,
+    image: '🌽'
+  },
+  echinacea: {
+    id: 'echinacea',
+    name: 'Эхинацея',
+    description: 'Дает много еды при сборе',
+    cost: { gold: 50 },
+    grow_time: 300,
+    wither_time: 600,
+    yield: { food: 48 },
+    experience: 15,
+    level_required: 3,
+    image: '🌺'
+  },
+  melon: {
+    id: 'melon',
+    name: 'Дыня',
+    description: 'Коллекция дает защиту от засухи',
+    cost: { gold: 75 },
+    grow_time: 600,
+    wither_time: 900,
+    yield: { food: 30, gold: 20 },
+    experience: 25,
+    level_required: 4,
+    image: '🍉'
+  },
+  ginger: {
+    id: 'ginger',
+    name: 'Имбирь',
+    description: 'Прибыльная культура',
+    cost: { gold: 100 },
+    grow_time: 1080,
+    wither_time: 1200,
+    yield: { gold: 300 },
+    experience: 50,
+    level_required: 5,
+    image: '🫚'
+  }
+};
+
+// ANIMALS DATA - All available animals
+export const ANIMALS_DATA = {
+  chicken: {
+    id: 'chicken',
+    name: 'Курица',
+    description: 'Несет яйца',
+    cost: { gold: 100, wood: 30 },
+    adult_age: 180,  // 3 minutes
+    production_interval: 300,  // 5 minutes
+    production_yield: { food: 15, gold: 5 },
+    feed_cost: { food: 5 },
+    experience: 10,
+    level_required: 1,
+    image: '🐔'
+  },
+  sheep: {
+    id: 'sheep',
+    name: 'Овца',
+    description: 'Дает шерсть',
+    cost: { gold: 150, wood: 40 },
+    adult_age: 240,
+    production_interval: 480,
+    production_yield: { wood: 15, gold: 8 },
+    feed_cost: { food: 8 },
+    experience: 15,
+    level_required: 2,
+    image: '🐑'
+  },
+  goat: {
+    id: 'goat',
+    name: 'Коза',
+    description: 'Дает молоко и шерсть',
+    cost: { gold: 160, wood: 35 },
+    adult_age: 210,
+    production_interval: 420,
+    production_yield: { food: 12, wood: 8, gold: 7 },
+    feed_cost: { food: 7 },
+    experience: 14,
+    level_required: 2,
+    image: '🐐'
+  },
+  pig: {
+    id: 'pig',
+    name: 'Свинья',
+    description: 'Дает мясо',
+    cost: { gold: 180, wood: 45 },
+    adult_age: 270,
+    production_interval: 540,
+    production_yield: { food: 30, gold: 12 },
+    feed_cost: { food: 12 },
+    experience: 18,
+    level_required: 3,
+    image: '🐷'
+  },
+  cow: {
+    id: 'cow',
+    name: 'Корова',
+    description: 'Дает молоко',
+    cost: { gold: 200, wood: 50 },
+    adult_age: 300,
+    production_interval: 600,
+    production_yield: { food: 20, gold: 10 },
+    feed_cost: { food: 10 },
+    experience: 20,
+    level_required: 3,
+    image: '🐄'
+  },
+  horse: {
+    id: 'horse',
+    name: 'Лошадь',
+    description: 'Ускоряет перемещение',
+    cost: { gold: 300, wood: 100 },
+    adult_age: 360,
+    production_interval: 0,  // doesn't produce
+    production_yield: {},
+    feed_cost: { food: 15 },
+    experience: 30,
+    level_required: 5,
+    image: '🐴'
+  }
 };
 
 export const QUESTS = [

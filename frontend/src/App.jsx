@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 import AuthPage from './components/Auth/AuthPage';
 import GameDashboard from './components/Game/GameDashboardNew';
 import { Toaster } from './components/ui/toaster';
