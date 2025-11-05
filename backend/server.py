@@ -9,7 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 load_dotenv()
 
 # Import routes
-from routes import auth, player, buildings, quests, market
+from routes import auth, player, buildings, quests, market, crops, animals, territory, pests, collections, friends
 
 # Database connection
 db_client = None
@@ -55,6 +55,12 @@ app.include_router(player.router, prefix="/api/player", tags=["Player"])
 app.include_router(buildings.router, prefix="/api/buildings", tags=["Buildings"])
 app.include_router(quests.router, prefix="/api/quests", tags=["Quests"])
 app.include_router(market.router, prefix="/api/market", tags=["Market"])
+app.include_router(crops.router, prefix="/api/crops", tags=["Crops"])
+app.include_router(animals.router, prefix="/api/animals", tags=["Animals"])
+app.include_router(territory.router, prefix="/api/territory", tags=["Territory"])
+app.include_router(pests.router, prefix="/api/pests", tags=["Pests"])
+app.include_router(collections.router, prefix="/api/collections", tags=["Collections"])
+app.include_router(friends.router, prefix="/api/friends", tags=["Friends"])
 
 @app.get("/api/health")
 async def health_check():

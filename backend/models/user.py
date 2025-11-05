@@ -10,6 +10,10 @@ class Resources(BaseModel):
     food: int = 100
     energy: int = 100
     agrobucks: int = 10  # Premium currency
+    coal: int = 0  # For location travel
+    totem_material: int = 0  # For crafting totems
+    drought_protection: int = 0  # Protection from withering
+    butterflies: int = 0  # Caught butterflies
 
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
