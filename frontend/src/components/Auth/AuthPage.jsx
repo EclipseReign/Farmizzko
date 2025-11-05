@@ -3,6 +3,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
 import { Label } from '../ui/label';
+import { auth } from '../../services/api';
 
 const AuthPage = ({ onAuth }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,17 +13,29 @@ const AuthPage = ({ onAuth }) => {
     email: ''
   });
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Mock authentication - will be replaced with actual backend
-    const user = {
-      id: '1',
-      username: formData.username,
-      level: 1,
-      experience: 0
-    };
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    onAuth(user);
+    setError('');
+    setLoading(true);
+    
+    try {
+      let user;
+      if (isLogin) {
+        user = await auth.login(formData.username, formData.password);
+      } else {
+        user = await auth.register(formData.username, formData.email, formData.password);
+      }
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      onAuth(user);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -47,6 +60,11 @@ const AuthPage = ({ onAuth }) => {
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="username">Имя пользователя</Label>
               <Input
@@ -56,6 +74,7 @@ const AuthPage = ({ onAuth }) => {
                 value={formData.username}
                 onChange={handleChange}
                 required
+                disabled={loading}
                 className="border-amber-300 focus:border-amber-500"
               />
             </div>
@@ -94,9 +113,10 @@ const AuthPage = ({ onAuth }) => {
           <CardFooter className="flex flex-col space-y-4">
             <Button 
               type="submit" 
-              className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-6 text-lg"
+              disabled={loading}
+              className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-6 text-lg disabled:opacity-50"
             >
-              {isLogin ? 'Войти' : 'Зарегистрироваться'}
+              {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
             </Button>
             
             <button
