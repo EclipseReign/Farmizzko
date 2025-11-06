@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
-"import { Input } from '../ui/input';"
-"import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';"
-"import { Label } from '../ui/label';"
+import { Input } from '../ui/input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
+import { Label } from '../ui/label';
 import { auth } from '../../services/api';
 
 const AuthPage = ({ onAuth }) => {

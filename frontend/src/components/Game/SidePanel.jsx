@@ -1,15 +1,25 @@
 import React from 'react';
 import { Button } from '../ui/button';
-import { Hammer, ShoppingCart, Target, Gift } from 'lucide-react';
+import { Hammer, ShoppingCart, Target, Gift, Sprout, PawPrint } from 'lucide-react';
 import { Badge } from '../ui/badge';
 
-const SidePanel = ({ onOpenBuilding, onOpenMarket, onOpenQuests, questsAvailable }) => {
+const SidePanel = ({ onOpenBuilding, onOpenMarket, onOpenQuests, onOpenCrops, onOpenAnimals, questsAvailable }) => {
   return (
     <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-3">
       <PanelButton 
         icon={<Hammer className="w-6 h-6" />} 
         label="Строить"
         onClick={onOpenBuilding}
+      />
+      <PanelButton 
+        icon={<Sprout className="w-6 h-6" />} 
+        label="Растения"
+        onClick={onOpenCrops}
+      />
+      <PanelButton 
+        icon={<PawPrint className="w-6 h-6" />} 
+        label="Животные"
+        onClick={onOpenAnimals}
       />
       <PanelButton 
         icon={<ShoppingCart className="w-6 h-6" />} 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from '../../hooks/use-toast';
 
-const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
+const IsometricMap = ({ buildings = [], crops = [], animals = [], onBuildingClick, onCellClick }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
   const [dragStart, setDragStart] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -48,13 +48,7 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
   const handleCellClick = (row, col, e) => {
     if (!dragStart) {
       const cellKey = `${row}-${col}`;
-      const building = buildings.find(b => b.position === cellKey);
-      
-      if (building) {
-        onBuildingClick(building);
-      } else {
-        onCellClick(cellKey);
-      }
+      onCellClick(cellKey);
     }
   };
 
@@ -103,6 +97,9 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
           const col = index % gridCols;
           const cellKey = `${row}-${col}`;
           const building = buildings.find(b => b.position === cellKey);
+          const crop = crops.find(c => c.position === cellKey);
+          const animal = animals.find(a => a.position === cellKey);
+          const hasObject = building || crop || animal;
           const isHovered = hoveredCell === cellKey;
           const pos = gridToIso(row, col);
 
@@ -110,8 +107,7 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
             <div
               key={cellKey}
               className="absolute transition-all duration-150"
-              style={
-                {
+              style={{
                 left: pos.x + (gridCols * tileWidth) / 2,
                 top: pos.y,
                 width: tileWidth,
@@ -131,7 +127,7 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
               >
                 <polygon
                   points="60,0 120,30 60,60 0,30"
-                  fill={building ? '#d97706' : '#4ade80'}
+                  fill={hasObject ? '#d97706' : '#4ade80'}
                   stroke={isHovered ? '#fbbf24' : '#22c55e'}
                   strokeWidth="2"
                   className="transition-all duration-150"
@@ -151,7 +147,6 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
                   <div className="relative">
                     <div className="text-6xl drop-shadow-lg">{building.image}</div>
                     
-                    {/* Building progress */}
                     {building.status === 'building' && (
                       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-2 bg-gray-300 rounded-full overflow-hidden">
                         <div
@@ -161,10 +156,81 @@ const IsometricMap = ({ buildings, onBuildingClick, onCellClick }) => {
                       </div>
                     )}
                     
-                    {/* Ready to collect indicator */}
                     {building.readyToCollect && (
                       <div className="absolute -top-4 -right-4 w-8 h-8 bg-green-500 rounded-full animate-pulse flex items-center justify-center shadow-lg">
                         <span className="text-white text-xl font-bold">!</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Crop */}
+              {crop && (
+                <div
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 hover:scale-110"
+                  style={{ zIndex: 1000 + row + col }}
+                >
+                  <div className="relative">
+                    <div className="text-5xl drop-shadow-lg">
+                      {crop.image}
+                    </div>
+                    
+                    {/* Crop growth stages */}
+                    {crop.status === 'growing' && (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-300 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-500 transition-all duration-500"
+                          style={{ width: `${crop.growth_progress || 0}%` }}
+                        />
+                      </div>
+                    )}
+                    
+                    {crop.status === 'ready' && (
+                      <div className="absolute -top-3 -right-3 w-6 h-6 bg-yellow-400 rounded-full animate-bounce flex items-center justify-center shadow-lg">
+                        <span className="text-white text-sm font-bold">✓</span>
+                      </div>
+                    )}
+                    
+                    {crop.status === 'withered' && (
+                      <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
+                        <span className="text-2xl">💀</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Animal */}
+              {animal && (
+                <div
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 hover:scale-110"
+                  style={{ zIndex: 1000 + row + col }}
+                >
+                  <div className="relative">
+                    <div className="text-5xl drop-shadow-lg">
+                      {animal.image}
+                    </div>
+                    
+                    {/* Animal growth */}
+                    {animal.status === 'growing' && (
+                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-gray-300 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 transition-all duration-500"
+                          style={{ width: `${animal.progress || 0}%` }}
+                        />
+                      </div>
+                    )}
+                    
+                    {(animal.status === 'adult' || animal.status === 'producing') && animal.canProduce && (
+                      <div className="absolute -top-3 -right-3 w-6 h-6 bg-purple-500 rounded-full animate-pulse flex items-center justify-center shadow-lg">
+                        <span className="text-white text-sm font-bold">!</span>
+                      </div>
+                    )}
+                    
+                    {animal.needs_feeding && (
+                      <div className="absolute -top-3 -left-3 w-6 h-6 bg-orange-500 rounded-full animate-bounce flex items-center justify-center shadow-lg">
+                        <span className="text-white text-xs">🍖</span>
                       </div>
                     )}
                   </div>

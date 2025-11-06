@@ -1,9 +1,12 @@
 import React from 'react';
-import { Coins, Trees, Mountain, Drumstick, Star, User } from 'lucide-react';
+import { Coins, Trees, Mountain, Drumstick, Star, User, Zap } from 'lucide-react';
 import { Progress } from '../ui/progress';
 
 const TopHUD = ({ user, resources, level, experienceToNext }) => {
   const experiencePercentage = (resources.experience / experienceToNext) * 100;
+  const energy = resources.energy || 0;
+  const maxEnergy = user.max_energy || 100;
+  const energyPercentage = (energy / maxEnergy) * 100;
 
   return (
     <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-amber-900 via-orange-800 to-amber-900 text-white shadow-lg z-50">
@@ -23,6 +26,16 @@ const TopHUD = ({ user, resources, level, experienceToNext }) => {
                 <span className="text-xs text-amber-200">{resources.experience} / {experienceToNext}</span>
               </div>
               <Progress value={experiencePercentage} className="h-2 bg-black/30" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3 bg-black/20 px-4 py-2 rounded-lg min-w-[150px]">
+            <Zap className="w-5 h-5 text-cyan-400" />
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold text-sm">Энергия</span>
+                <span className="text-xs text-amber-200">{energy} / {maxEnergy}</span>
+              </div>
+              <Progress value={energyPercentage} className="h-2 bg-black/30" />
             </div>
           </div>
         </div>
