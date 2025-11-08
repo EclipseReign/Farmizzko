@@ -130,3 +130,156 @@ body {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+
+/* Clouds animation */
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+}
+
+.cloud-1 {
+  width: 150px;
+  height: 50px;
+  top: 10%;
+  left: 10%;
+  animation: float 30s infinite linear;
+}
+
+.cloud-1::before {
+  width: 60px;
+  height: 60px;
+  top: -30px;
+  left: 20px;
+}
+
+.cloud-1::after {
+  width: 80px;
+  height: 80px;
+  top: -40px;
+  right: 20px;
+}
+
+.cloud-2 {
+  width: 200px;
+  height: 60px;
+  top: 30%;
+  left: 50%;
+  animation: float 40s infinite linear;
+  animation-delay: 5s;
+}
+
+.cloud-2::before {
+  width: 80px;
+  height: 80px;
+  top: -40px;
+  left: 30px;
+}
+
+.cloud-2::after {
+  width: 100px;
+  height: 100px;
+  top: -50px;
+  right: 30px;
+}
+
+.cloud-3 {
+  width: 120px;
+  height: 40px;
+  top: 60%;
+  left: 80%;
+  animation: float 35s infinite linear;
+  animation-delay: 10s;
+}
+
+.cloud-3::before {
+  width: 50px;
+  height: 50px;
+  top: -25px;
+  left: 15px;
+}
+
+.cloud-3::after {
+  width: 70px;
+  height: 70px;
+  top: -35px;
+  right: 15px;
+}
+
+@keyframes float {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+/* Grass texture */
+.grass-texture {
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      rgba(0, 0, 0, 0.03) 1px,
+      transparent 2px,
+      transparent 8px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      rgba(0, 0, 0, 0.03) 1px,
+      transparent 2px,
+      transparent 8px
+    );
+}
+
+/* Wooden texture */
+.wood-texture {
+  background: 
+    linear-gradient(90deg, rgba(101, 67, 33, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(101, 67, 33, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 69, 19, 0.05) 2px, transparent 2px);
+  background-size: 4px 4px, 4px 4px, 20px 20px;
+}
+
+/* Pulsing glow effect for ready items */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.8);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Building shadows */
+.building-shadow {
+  filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Western font styles */
+.font-western {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}

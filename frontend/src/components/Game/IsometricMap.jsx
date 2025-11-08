@@ -66,23 +66,37 @@ const IsometricMap = ({ buildings = [], crops = [], animals = [], onBuildingClic
   return (
     <div
       ref={containerRef}
-      className="w-full h-full overflow-hidden cursor-move select-none"
+      className="w-full h-full overflow-hidden cursor-move select-none relative"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       style={{
-        background: 'linear-gradient(135deg, #86efac 0%, #4ade80 50%, #22c55e 100%)',
+        background: 'radial-gradient(ellipse at center, #b8dba5 0%, #8eb677 40%, #6b904f 100%)',
         backgroundImage: `
-          linear-gradient(45deg, rgba(0,0,0,.05) 25%, transparent 25%),
-          linear-gradient(-45deg, rgba(0,0,0,.05) 25%, transparent 25%),
-          linear-gradient(45deg, transparent 75%, rgba(0,0,0,.05) 75%),
-          linear-gradient(-45deg, transparent 75%, rgba(0,0,0,.05) 75%)
-        `,
-        backgroundSize: '40px 40px',
-        backgroundPosition: '0 0, 0 20px, 20px -20px, -20px 0px'
+          repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255,255,255,.03) 10px,
+            rgba(255,255,255,.03) 20px
+          ),
+          repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 10px,
+            rgba(0,0,0,.03) 10px,
+            rgba(0,0,0,.03) 20px
+          )
+        `
       }}
     >
+      {/* Clouds */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="cloud cloud-1" />
+        <div className="cloud cloud-2" />
+        <div className="cloud cloud-3" />
+      </div>
       <div
         className="relative"
         style={{
@@ -125,34 +139,73 @@ const IsometricMap = ({ buildings = [], crops = [], animals = [], onBuildingClic
                 viewBox="0 0 120 60"
                 className="absolute"
               >
+                <defs>
+                  <linearGradient id={`grassGrad-${cellKey}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: hasObject ? '#c2822f' : '#7ec850', stopOpacity: 1 }} />
+                    <stop offset="50%" style={{ stopColor: hasObject ? '#a86f23' : '#6ab53e', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: hasObject ? '#8b5a1e' : '#5a9e33', stopOpacity: 1 }} />
+                  </linearGradient>
+                  <pattern id={`grassPattern-${cellKey}`} x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+                    <circle cx="2" cy="2" r="0.5" fill="rgba(0,0,0,0.1)" />
+                    <circle cx="6" cy="6" r="0.5" fill="rgba(0,0,0,0.1)" />
+                  </pattern>
+                </defs>
                 <polygon
                   points="60,0 120,30 60,60 0,30"
-                  fill={hasObject ? '#d97706' : '#4ade80'}
-                  stroke={isHovered ? '#fbbf24' : '#22c55e'}
+                  fill={`url(#grassGrad-${cellKey})`}
+                  stroke={isHovered ? '#fbbf24' : hasObject ? '#8b5a1e' : '#4a873d'}
                   strokeWidth="2"
                   className="transition-all duration-150"
                   style={{
-                    filter: isHovered ? 'brightness(1.2)' : 'brightness(1)',
+                    filter: isHovered ? 'brightness(1.3) drop-shadow(0 0 8px rgba(251, 191, 36, 0.5))' : 'brightness(1)',
                     cursor: 'pointer'
                   }}
                 />
+                <polygon
+                  points="60,0 120,30 60,60 0,30"
+                  fill={`url(#grassPattern-${cellKey})`}
+                  className="pointer-events-none"
+                />
+                {/* Highlight border when hovered */}
+                {isHovered && (
+                  <polygon
+                    points="60,0 120,30 60,60 0,30"
+                    fill="none"
+                    stroke="#ffd700"
+                    strokeWidth="3"
+                    className="animate-pulse"
+                  />
+                )}
               </svg>
 
               {/* Building */}
               {building && (
                 <div
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-150 hover:scale-110"
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-200 hover:scale-110 cursor-pointer"
                   style={{ zIndex: 1000 + row + col }}
                 >
-                  <div className="relative">
-                    <div className="text-6xl drop-shadow-lg">{building.image}</div>
+                  <div className="relative building-shadow">
+                    {/* Building emoji */}
+                    <div className="text-6xl drop-shadow-2xl transform hover:rotate-3 transition-transform duration-200">
+                      {building.image}
+                    </div>
                     
+                    {/* Construction progress */}
                     {building.status === 'building' && (
-                      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-16 h-2 bg-gray-300 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-amber-500 transition-all duration-500"
-                          style={{ width: `${building.progress || 0}%` }}
-                        />
+                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-20">
+                        <div className="bg-gradient-to-r from-amber-900 to-amber-800 rounded-full p-0.5 shadow-lg">
+                          <div className="h-2.5 bg-amber-950 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500 relative"
+                              style={{ width: `${building.progress || 0}%` }}
+                            >
+                              <div className="absolute inset-0 bg-white/30 animate-pulse" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-center mt-0.5 text-xs font-bold text-amber-900 drop-shadow-sm">
+                          {Math.round(building.progress || 0)}%
+                        </div>
                       </div>
                     )}
                     

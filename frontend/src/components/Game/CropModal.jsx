@@ -1,111 +1,95 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal } from '../ui/modal';
 import { Button } from '../ui/button';
-import { Sprout, Clock, Droplet } from 'lucide-react';
-import { CROPS_DATA } from '../../mockData';
+import { CROPS } from '../../mockData';
 
-const CropModal = ({ isOpen, onClose, onPlant, resources, playerLevel, position, location = 'main' }) => {
-  const [selectedCrop, setSelectedCrop] = useState(null);
-  
-  const handlePlant = () => {
-    if (selectedCrop) {
-      onPlant(selectedCrop.id, position, location);
-      onClose();
-    }
-  };
-  
+const CropModal = ({ isOpen, onClose, onPlant, resources, playerLevel, position }) => {
   const canAfford = (crop) => {
-    return Object.entries(crop.cost).every(([resource, amount]) => 
-      resources[resource] >= amount
-    );
+    return resources.gold >= crop.cost.gold && 
+           resources.wood >= (crop.cost.wood || 0);
   };
-  
-  const availableCrops = Object.values(CROPS_DATA).filter(
-    crop => crop.level_required <= playerLevel
-  );
-  
+
+  const isUnlocked = (crop) => crop.unlockLevel <= playerLevel;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Посадить растение">
-      <div className="space-y-4">
-        {/* Crop Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-          {availableCrops.map((crop) => {
-            const affordable = canAfford(crop);
-            const isSelected = selectedCrop?.id === crop.id;
-            
-            return (
-              <button
-                key={crop.id}
-                onClick={() => setSelectedCrop(crop)}
-                disabled={!affordable}
-                className={`
-                  p-3 rounded-lg border-2 transition-all text-left
-                  ${isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'}
-                  ${!affordable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                `}
-              >
-                <div className="text-3xl mb-2">{crop.image}</div>
-                <h3 className="font-semibold text-sm">{crop.name}</h3>
-                <p className="text-xs text-gray-600 mt-1">{crop.description}</p>
+    <Modal isOpen={isOpen} onClose={onClose} title="🌾 Посадить растение">
+      <div className="grid grid-cols-2 gap-4 p-4 max-h-[500px] overflow-y-auto">
+        {CROPS.map((crop) => {
+          const affordable = canAfford(crop);
+          const unlocked = isUnlocked(crop);
+          
+          return (
+            <div
+              key={crop.id}
+              className={`
+                bg-gradient-to-br from-amber-50 to-orange-50 
+                border-4 rounded-lg p-4 transition-all duration-200
+                ${
+                  unlocked && affordable
+                    ? 'border-green-600 hover:scale-105 hover:shadow-xl cursor-pointer'
+                    : 'border-gray-400 opacity-60 cursor-not-allowed'
+                }
+              `}
+              onClick={() => {
+                if (unlocked && affordable) {
+                  onPlant(crop.id, position);
+                  onClose();
+                }
+              }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-5xl mb-2">{crop.image}</div>
+                <div className="text-center">
+                  <h3 className="font-bold text-lg text-amber-900">{crop.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{crop.description}</p>
+                </div>
                 
-                <div className="mt-2 space-y-1">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {Math.floor(crop.grow_time / 60)}м {crop.grow_time % 60}с
+                <div className="w-full space-y-1 text-xs">
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Время:</span>
+                    <span className="text-green-700">{crop.growTime} мин</span>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-1">
-                    {Object.entries(crop.cost).map(([resource, amount]) => (
-                      <span key={resource} className="text-xs bg-gray-200 px-1 rounded">
-                        {amount} {resource}
-                      </span>
-                    ))}
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Урожай:</span>
+                    <span className="text-blue-700">{crop.yield.food}🍖 {crop.yield.gold}💰</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Стоимость:</span>
+                    <span className={affordable ? 'text-green-700' : 'text-red-600 font-bold'}>
+                      {crop.cost.gold}💰
+                    </span>
                   </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-        
-        {/* Selected Crop Details */}
-        {selectedCrop && (
-          <div className="border-t pt-4">
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm font-semibold mb-2">При сборе получите:</p>
-              <div className="flex gap-2 flex-wrap">
-                {Object.entries(selectedCrop.yield).map(([resource, amount]) => (
-                  <span key={resource} className="text-sm bg-white px-2 py-1 rounded">
-                    +{amount} {resource}
-                  </span>
-                ))}
-                <span className="text-sm bg-yellow-100 px-2 py-1 rounded">
-                  +{selectedCrop.experience} опыта
-                </span>
+                
+                {!unlocked && (
+                  <div className="mt-2 text-xs text-red-600 font-bold">
+                    🔒 Требуется уровень {crop.unlockLevel}
+                  </div>
+                )}
+                
+                <Button
+                  disabled={!unlocked || !affordable}
+                  className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (unlocked && affordable) {
+                      onPlant(crop.id, position);
+                      onClose();
+                    }
+                  }}
+                >
+                  Посадить
+                </Button>
               </div>
-              
-              {selectedCrop.butterflies && (
-                <p className="text-xs text-blue-600 mt-2">
-                  🦋 При сборе появляются бабочки!
-                </p>
-              )}
             </div>
-          </div>
-        )}
-        
-        {/* Action */}
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Отмена
-          </Button>
-          <Button 
-            onClick={handlePlant}
-            disabled={!selectedCrop || !canAfford(selectedCrop)}
-            className="flex-1"
-          >
-            <Sprout className="w-4 h-4 mr-2" />
-            Посадить
-          </Button>
-        </div>
+          );
+        })}
+      </div>
+      
+      <div className="flex justify-end gap-2 mt-4 px-4 pb-4">
+        <Button variant="outline" onClick={onClose}>
+          Закрыть
+        </Button>
       </div>
     </Modal>
   );

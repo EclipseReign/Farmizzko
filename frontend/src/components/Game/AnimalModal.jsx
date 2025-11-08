@@ -1,118 +1,96 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal } from '../ui/modal';
 import { Button } from '../ui/button';
-import { Plus, Clock } from 'lucide-react';
-import { ANIMALS_DATA } from '../../mockData';
+import { ANIMALS } from '../../mockData';
 
-const AnimalModal = ({ isOpen, onClose, onAdd, resources, playerLevel, position, location = 'main' }) => {
-  const [selectedAnimal, setSelectedAnimal] = useState(null);
-  
-  const handleAdd = () => {
-    if (selectedAnimal) {
-      onAdd(selectedAnimal.id, position, location);
-      onClose();
-    }
-  };
-  
+const AnimalModal = ({ isOpen, onClose, onAdd, resources, playerLevel, position }) => {
   const canAfford = (animal) => {
-    return Object.entries(animal.cost).every(([resource, amount]) => 
-      resources[resource] >= amount
-    );
+    return resources.gold >= animal.cost.gold && 
+           resources.wood >= (animal.cost.wood || 0) &&
+           resources.food >= (animal.cost.food || 0);
   };
-  
-  const availableAnimals = Object.values(ANIMALS_DATA).filter(
-    animal => animal.level_required <= playerLevel
-  );
-  
+
+  const isUnlocked = (animal) => animal.unlockLevel <= playerLevel;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Добавить животное">
-      <div className="space-y-4">
-        {/* Animal Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
-          {availableAnimals.map((animal) => {
-            const affordable = canAfford(animal);
-            const isSelected = selectedAnimal?.id === animal.id;
-            
-            return (
-              <button
-                key={animal.id}
-                onClick={() => setSelectedAnimal(animal)}
-                disabled={!affordable}
-                className={`
-                  p-3 rounded-lg border-2 transition-all text-left
-                  ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}
-                  ${!affordable ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                `}
-              >
-                <div className="text-3xl mb-2">{animal.image}</div>
-                <h3 className="font-semibold text-sm">{animal.name}</h3>
-                <p className="text-xs text-gray-600 mt-1">{animal.description}</p>
+    <Modal isOpen={isOpen} onClose={onClose} title="🐄 Добавить животное">
+      <div className="grid grid-cols-2 gap-4 p-4 max-h-[500px] overflow-y-auto">
+        {ANIMALS.map((animal) => {
+          const affordable = canAfford(animal);
+          const unlocked = isUnlocked(animal);
+          
+          return (
+            <div
+              key={animal.id}
+              className={`
+                bg-gradient-to-br from-blue-50 to-cyan-50 
+                border-4 rounded-lg p-4 transition-all duration-200
+                ${
+                  unlocked && affordable
+                    ? 'border-blue-600 hover:scale-105 hover:shadow-xl cursor-pointer'
+                    : 'border-gray-400 opacity-60 cursor-not-allowed'
+                }
+              `}
+              onClick={() => {
+                if (unlocked && affordable) {
+                  onAdd(animal.id, position);
+                  onClose();
+                }
+              }}
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-5xl mb-2">{animal.image}</div>
+                <div className="text-center">
+                  <h3 className="font-bold text-lg text-blue-900">{animal.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{animal.description}</p>
+                </div>
                 
-                <div className="mt-2 space-y-1">
-                  <div className="flex items-center text-xs text-gray-500">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Взрослый: {Math.floor(animal.adult_age / 60)}м
+                <div className="w-full space-y-1 text-xs">
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Время роста:</span>
+                    <span className="text-green-700">{animal.growTime} мин</span>
                   </div>
-                  
-                  <div className="flex flex-wrap gap-1">
-                    {Object.entries(animal.cost).map(([resource, amount]) => (
-                      <span key={resource} className="text-xs bg-gray-200 px-1 rounded">
-                        {amount} {resource}
-                      </span>
-                    ))}
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Производство:</span>
+                    <span className="text-purple-700">{animal.production.food || 0}🍖 {animal.production.gold || 0}💰</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-white/70 px-2 py-1 rounded">
+                    <span className="font-semibold">Стоимость:</span>
+                    <span className={affordable ? 'text-green-700' : 'text-red-600 font-bold'}>
+                      {animal.cost.gold}💰 {animal.cost.food || 0}🍖
+                    </span>
                   </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
-        
-        {/* Selected Animal Details */}
-        {selectedAnimal && (
-          <div className="border-t pt-4">
-            <div className="bg-purple-50 p-3 rounded-lg space-y-2">
-              <div>
-                <p className="text-sm font-semibold mb-1">Производство:</p>
-                <div className="flex gap-2 flex-wrap">
-                  {Object.entries(selectedAnimal.production_yield).map(([resource, amount]) => (
-                    <span key={resource} className="text-sm bg-white px-2 py-1 rounded">
-                      +{amount} {resource}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-600 mt-1">
-                  Каждые {Math.floor(selectedAnimal.production_interval / 60)} минут
-                </p>
-              </div>
-              
-              <div>
-                <p className="text-sm font-semibold mb-1">Кормление:</p>
-                <div className="flex gap-2 flex-wrap">
-                  {Object.entries(selectedAnimal.feed_cost).map(([resource, amount]) => (
-                    <span key={resource} className="text-sm bg-orange-100 px-2 py-1 rounded">
-                      {amount} {resource}
-                    </span>
-                  ))}
-                </div>
+                
+                {!unlocked && (
+                  <div className="mt-2 text-xs text-red-600 font-bold">
+                    🔒 Требуется уровень {animal.unlockLevel}
+                  </div>
+                )}
+                
+                <Button
+                  disabled={!unlocked || !affordable}
+                  className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (unlocked && affordable) {
+                      onAdd(animal.id, position);
+                      onClose();
+                    }
+                  }}
+                >
+                  Добавить
+                </Button>
               </div>
             </div>
-          </div>
-        )}
-        
-        {/* Action */}
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Отмена
-          </Button>
-          <Button 
-            onClick={handleAdd}
-            disabled={!selectedAnimal || !canAfford(selectedAnimal)}
-            className="flex-1"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Добавить
-          </Button>
-        </div>
+          );
+        })}
+      </div>
+      
+      <div className="flex justify-end gap-2 mt-4 px-4 pb-4">
+        <Button variant="outline" onClick={onClose}>
+          Закрыть
+        </Button>
       </div>
     </Modal>
   );
